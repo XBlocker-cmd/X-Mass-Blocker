@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      --bg: #f3f4f6;
+      --panel-bg: #ffffff;
+      --hover-bg: #f9fafb;
+      --text-primary: #1f2937;
+      --text-secondary: #4b5563;
+      --text-muted: #6b7280;
+      --border: #d1d5db;
+      --border-light: #e5e7eb;
+      --accent: #e11d48;
+      --accent-hover: #be123c;
+      --success: #10b981;
+      --success-hover: #059669;
+    }
+    html[data-theme="dark"] {
+      --bg: #0f172a;
+      --panel-bg: #1f2937;
+      --hover-bg: #273449;
+      --text-primary: #f3f4f6;
+      --text-secondary: #d1d5db;
+      --text-muted: #9ca3af;
+      --border: #374151;
+      --border-light: #374151;
+      --accent: #e11d48;
+      --accent-hover: #fb7185;
+      --success: #10b981;
+      --success-hover: #34d399;
+    }
+    @font-face {
+      font-family: 'B Koodak';
+      src: local('B Koodak'), local('BKoodak'), local('B_Koodak');
+    }
+    body {
+      width: 340px;
+      font-family: 'B Koodak', Tahoma, sans-serif;
+      padding: 15px;
+      margin: 0;
+      background-color: var(--bg);
+    }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 8px;
+    }
+    h3 {
+      margin-top: 0;
+      color: var(--text-primary);
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+    .header-actions {
+      display: flex;
+      gap: 6px;
+    }
+    #langToggle, #popupThemeToggleBtn {
+      background-color: var(--text-primary);
+      color: var(--panel-bg);
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: Tahoma, sans-serif;
+    }
+    #langToggle:hover, #popupThemeToggleBtn:hover {
+      opacity: 0.85;
+    }
+    html[dir="ltr"] body {
+      text-align: left;
+    }
+    html[dir="ltr"] #searchInput,
+    html[dir="ltr"] textarea {
+      direction: ltr;
+      text-align: left;
+    }
+    html[dir="ltr"] .search-item,
+    html[dir="ltr"] .search-item .user-info {
+      text-align: left;
+    }
+    .field-group {
+      margin-bottom: 12px;
+      position: relative;
+    }
+    label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: block;
+      margin-bottom: 4px;
+    }
+    /* استایل کادر جستجو */
+    #searchInput {
+      width: 93%;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      outline: none;
+      background: var(--panel-bg);
+      color: var(--text-primary);
+    }
+    #searchInput:focus {
+      border-color: var(--accent);
+    }
+    /* استایل منوی کشویی نتایج جستجو */
+    .search-dropdown {
+      position: absolute;
+      top: 38px;
+      left: 0;
+      right: 0;
+      background: var(--panel-bg);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      max-height: 250px;
+      overflow-y: auto;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      display: none;
+    }
+    .search-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-light);
+      transition: background 0.2s;
+    }
+    .search-item:hover {
+      background-color: var(--hover-bg);
+    }
+    /* استایل چک‌باکس */
+    .search-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+    .search-item img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+    .search-item .user-info {
+      display: flex;
+      flex-direction: column;
+      text-align: right;
+    }
+    .search-item .name {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+    .search-item .handle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    /* دکمه افزودن تیک‌خورده‌ها در انتهای لیست کشویی */
+    .add-selected-btn {
+      width: calc(100% - 16px);
+      margin: 8px;
+      background-color: var(--success);
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+      font-family: Tahoma;
+      text-align: center;
+    }
+    .add-selected-btn:hover {
+      background-color: var(--success-hover);
+    }
+
+    textarea {
+      width: 93%;
+      height: 100px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 12px;
+      resize: none;
+      font-family: monospace;
+      background: var(--panel-bg);
+      color: var(--text-primary);
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .row > div {
+      flex: 1;
+    }
+    input[type="number"] {
+      width: 80%;
+      padding: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 12px;
+      background: var(--panel-bg);
+      color: var(--text-primary);
+    }
+    .btn-file {
+      border: 1px dashed var(--text-secondary);
+      color: var(--text-secondary);
+      background-color: var(--panel-bg);
+      padding: 6px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      display: block;
+      text-align: center;
+      cursor: pointer;
+    }
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+    .file-input-wrapper input[type=file] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    .btn {
+      width: 100%;
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .btn:hover {
+      background-color: var(--accent-hover);
+    }
+    .popup-footer-note {
+      margin-top: 10px;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-row">
+    <h3 data-i18n="popupTitle">تنظیمات بلاک دسته‌جمعی</h3>
+    <div class="header-actions">
+      <button id="popupThemeToggleBtn" type="button">🌙</button>
+      <button id="langToggle" type="button">EN</button>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <input type="text" id="searchInput" placeholder="جستجوی سریع اکانت در توییتر..." autocomplete="off" />
+    <div id="searchDropdown" class="search-dropdown"></div>
+  </div>
+
+  <div class="field-group">
+    <label data-i18n="listLabel">لیست نهایی کاربران برای بلاک</label>
+    <textarea id="listInput" placeholder="یوزرنیم‌ها یا آیدی‌ها در هر خط..."></textarea>
+  </div>
+
+  <div class="row">
+    <div>
+      <label data-i18n="importLabel">ایمپورت فایل (TXT)</label>
+      <div class="file-input-wrapper">
+        <span class="btn-file" data-i18n="chooseFile">انتخاب فایل...</span>
+        <input type="file" id="fileInput" accept=".txt" />
+      </div>
+    </div>
+    <div>
+      <label data-i18n="delayLabel">تاخیر (ثانیه)</label>
+      <input type="number" id="delayInput" value="7" min="2" />
+    </div>
+  </div>
+
+  <button id="startBtn" class="btn" data-i18n="startBtn">ارسال لیست به توییتر</button>
+  <div class="popup-footer-note" data-i18n="popupFooterNote">برای گزینه‌های بیشتر (پیش‌نمایش، تنظیمات، لیست بلاک‌شده‌ها) از آیکون داخل صفحه X استفاده کنید.</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
