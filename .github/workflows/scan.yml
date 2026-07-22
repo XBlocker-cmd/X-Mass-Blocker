@@ -1,0 +1,30 @@
+name: Scan Project with VirusTotal
+
+on:
+  push:
+    branches: [ "main" ] # اگر نام شاخه اصلی پروژه‌ات master است، اینجا بگذار master
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      # ۱. دریافت فایل‌های پروژه
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ۲. زیپ کردن تمام فایل‌های پروژه (اگر فایل زیپ از قبل نداری)
+      - name: Compress project
+        run: zip -r project-scan.zip . -x "*.git*" ".github*"
+
+      # ۳. دانلود ابزار رسمی VirusTotal CLI
+      - name: Install VirusTotal CLI
+        run: |
+          curl -sL https://github.com/VirusTotal/vt-cli/releases/latest/download/vt-linux-amd64.tar.gz | tar -xz
+          sudo mv vt /usr/local/bin/
+
+      # ۴. اسکن مستقیم فایل زیپ با VirusTotal
+      - name: Scan with VirusTotal
+        env:
+          VT_API_KEY: ${{ secrets.VIRUSTOTAL_API_KEY }}
+        run: |
+          vt scan file *.zip
