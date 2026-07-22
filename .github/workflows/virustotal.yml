@@ -1,21 +1,23 @@
 name: Scan with VirusTotal
 
 on:
+  push:
+    branches: [ "main" ] # برای تست با هر Push اجرا می‌شود
   release:
-    types: [published] # این اکشن فقط زمانی که یک Release جدید ثبت کنی اجرا می‌شود
+    types: [published]
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      # ۱. دریافت فایل‌های پروژه/ریلیز
+      # ۱. دریافت کدهای پروژه
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ۲. فرستادن فایل به VirusTotal و گرفتن گزارش
-      - name: VirusTotal Scan
-        uses: CrazyMax/ghaction-virustotal@v3
+      # ۲. اجرای اسکن با ابزار رسمی VirusTotal
+      - name: Scan file with VirusTotal
+        uses: virustotal/vt-cli-action@v1
         with:
-          vt_api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
+          api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
           files: |
-            ./my-file.zip # اسم یا مسیر فایلی که می‌خواهی اسکن شود را اینجا بگذار
+            ./X-Mass-Blocker-3.1.zip # <-- اینجا اسم دقیق فایل یا پوشه‌ای که می‌خواهی اسکن شود را بنویس
