@@ -1,0 +1,21 @@
+name: Scan with VirusTotal
+
+on:
+  release:
+    types: [published] # این اکشن فقط زمانی که یک Release جدید ثبت کنی اجرا می‌شود
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      # ۱. دریافت فایل‌های پروژه/ریلیز
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ۲. فرستادن فایل به VirusTotal و گرفتن گزارش
+      - name: VirusTotal Scan
+        uses: CrazyMax/ghaction-virustotal@v3
+        with:
+          vt_api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
+          files: |
+            ./my-file.zip # اسم یا مسیر فایلی که می‌خواهی اسکن شود را اینجا بگذار
