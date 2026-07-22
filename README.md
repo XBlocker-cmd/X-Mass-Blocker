@@ -1,4 +1,4 @@
-[🌐 Read in English](#-twitterx-mass-blocker--advanced-browser-extension) | [Language: فارسی](#%DA%AA%D8%A7%D8%B1%D8%A8%D8%B1%D8%AF%DB%8C)
+![VirusTotal Scan](https://github.com/XBlocker-cmd/X-Mass-Blocker/actions/workflows/scan.yml/badge.svg)
 🛠️ Twitter/X Mass Blocker — Advanced Browser Extension
 An open-source, modern, and powerful browser extension designed for Chromium-based browsers (Chrome, Edge, Brave, Mises, etc.). It allows users to fully automate and locally manage privacy workflows, including mass blocking and User ID extraction on the Twitter (X.com) platform.
 By utilizing direct script injection into your active browser session, this tool securely interfaces with X's internal APIs using your existing authentication tokens (`X-Csrf-Token`). It operates entirely without the need for an official, expensive Twitter Developer API, and includes smart rate-limit handling mechanisms.
