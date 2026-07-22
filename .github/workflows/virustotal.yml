@@ -1,23 +1,23 @@
-name: Scan with VirusTotal
+name: Scan Project with VirusTotal
 
 on:
   push:
-    branches: [ "main" ] # برای تست با هر Push اجرا می‌شود
-  release:
-    types: [published]
+    branches: [ "main" ] # اگر اسم شاخه‌ات master است، اینجا بگذار master
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      # ۱. دریافت کدهای پروژه
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ۲. اجرای اسکن با ابزار رسمی VirusTotal
-      - name: Scan file with VirusTotal
+      # زیپ کردن خودکار تمام فایل‌های پروژه
+      - name: Compress project
+        run: zip -r project-scan.zip . -x "*.git*" ".github*"
+
+      # فرستادن زیپ به ویروس‌توتال
+      - name: Scan with VirusTotal
         uses: virustotal/vt-cli-action@v1
         with:
           api_key: ${{ secrets.VIRUSTOTAL_API_KEY }}
-          files: |
-            ./*.zip # <-- اینجا اسم دقیق فایل یا پوشه‌ای که می‌خواهی اسکن شود را بنویس
+          files: ./*.zip
