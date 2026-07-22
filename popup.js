@@ -115,31 +115,47 @@ async function searchUsersOnTwitter(query) {
     const [response] = await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       func: async (q, token) => {
-        try {
-          const res = await fetch(`https://x.com/i/api/1.1/search/typeahead.json?q=${encodeURIComponent(q)}&count=5&types=users&pc=1&query_source=typed_query`, {
-            method: "GET",
-            headers: {
-              "Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA",
-              "X-Csrf-Token": token,
-              "X-Twitter-Active-User": "yes",
-              "X-Twitter-Auth-Type": "OAuth2Session",
-              "X-Twitter-Client-Language": "en"
-            }
-          });
-          if (res.ok) {
-            const data = await res.json();
-            const users = data.users || [];
-            if (users.length === 0) {
-              return { users: [], debugRaw: JSON.stringify(data).slice(0, 300) };
-            }
-            return { users };
+        const headers = {
+          "Authorization": "Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA",
+          "X-Csrf-Token": token,
+          "X-Twitter-Active-User": "yes",
+          "X-Twitter-Auth-Type": "OAuth2Session",
+          "X-Twitter-Client-Language": "en"
+        };
+
+        async function tryEndpoint(url) {
+          try {
+            const res = await fetch(url, { method: "GET", headers });
+            let bodyText = '';
+            let json = null;
+            try {
+              bodyText = await res.text();
+              json = JSON.parse(bodyText);
+            } catch (_) { /* پاسخ JSON معتبر نبود */ }
+            return { httpOk: res.ok, status: res.status, json, bodyText: (bodyText || '').slice(0, 200) };
+          } catch (err) {
+            return { httpOk: false, status: 0, networkError: true };
           }
-          let bodyText = '';
-          try { bodyText = (await res.text()).slice(0, 300); } catch (_) {}
-          return { users: [], error: "FETCH_FAILED", status: res.status, debugRaw: bodyText };
-        } catch (err) {
-          return { users: [], error: "FETCH_ERROR" };
         }
+
+        // این پارامترها دقیقاً همان‌هایی هستند که خود صفحه توییتر هنگام تایپ در کادر جستجو استفاده می‌کند
+        // (تفاوت کلیدی نسبت به قبل: پارامتر درست `result_type` است، نه `types`)
+        const searchUrl = `https://x.com/i/api/1.1/search/typeahead.json?include_ext_is_blue_verified=1&include_ext_verified_type=1&include_ext_profile_image_shape=1&q=${encodeURIComponent(q)}&src=search_box&result_type=cashtags%2Cevents%2Cusers%2Ctopics%2Clists`;
+
+        const attempt = await tryEndpoint(searchUrl);
+        let users = (attempt.json && attempt.json.users) || [];
+
+        if (users.length === 0) {
+          const describeAttempt = (label, a) => a
+            ? `${label}: status=${a.status}${a.networkError ? ' (network error)' : ''}${a.bodyText ? ' body=' + a.bodyText : ''}`
+            : `${label}: not tried`;
+          return {
+            users: [],
+            debugRaw: describeAttempt('typeahead', attempt)
+          };
+        }
+
+        return { users };
       },
       args: [query, csrfToken]
     });
