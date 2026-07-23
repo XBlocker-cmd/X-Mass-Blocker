@@ -86,7 +86,16 @@ const translations = {
     confirmUnblockSelected: (n) => `آیا مطمئن هستید؟ ${n} اکانت آنبلاک خواهد شد.`,
     unblockingStatus: (done, total) => `در حال آنبلاک کردن... ${done}/${total}`,
     unblockDoneStatus: (n) => `${n} اکانت با موفقیت آنبلاک شد.`,
-    blockedListNoResults: "نتیجه‌ای یافت نشد."
+    blockedListNoResults: "نتیجه‌ای یافت نشد.",
+    tabUnblock: "آنبلاک دسته‌جمعی",
+    unblockModeLabel: "نوع داده ورودی",
+    unblockListLabel: "لیست یوزرنیم‌ها/آیدی‌ها برای آنبلاک",
+    unblockStartBtn: "شروع عملیات آنبلاک دسته‌جمعی",
+    unblockListPlaceholderUsername: "هر یوزرنیم در یک خط جدید (بدون @)...",
+    unblockListPlaceholderXid: "هر X ID عددی در یک خط جدید...",
+    confirmClearUnblockList: "آیا مطمئن هستید؟ لیست و تنظیمات این تب پاک خواهد شد.",
+    previewNotBlocked: (n) => `از قبل بلاک نبودند: ${n}`,
+    previewWillUnblock: (n) => `در مجموع آنبلاک خواهند شد: ${n}`
   },
   en: {
     pageTitle: "Advanced Twitter Blocker Dashboard",
@@ -170,7 +179,16 @@ const translations = {
     confirmUnblockSelected: (n) => `Are you sure? ${n} accounts will be unblocked.`,
     unblockingStatus: (done, total) => `Unblocking... ${done}/${total}`,
     unblockDoneStatus: (n) => `${n} accounts successfully unblocked.`,
-    blockedListNoResults: "No results found."
+    blockedListNoResults: "No results found.",
+    tabUnblock: "Bulk unblock",
+    unblockModeLabel: "Input data type",
+    unblockListLabel: "List of usernames/IDs to unblock",
+    unblockStartBtn: "Start bulk unblock operation",
+    unblockListPlaceholderUsername: "One username per line (without @)...",
+    unblockListPlaceholderXid: "One numeric X ID per line...",
+    confirmClearUnblockList: "Are you sure? This tab's list and settings will be cleared.",
+    previewNotBlocked: (n) => `Weren't already blocked: ${n}`,
+    previewWillUnblock: (n) => `Total that will be unblocked: ${n}`
   }
 };
 
@@ -187,9 +205,9 @@ function applyLanguage(lang) {
   document.querySelector('[data-i18n="searchLabel"]').textContent = t.searchLabel;
   document.getElementById('searchInput').placeholder = t.searchPlaceholder;
   document.querySelector('[data-i18n="listLabel"]').textContent = t.listLabel;
-  document.querySelector('[data-i18n="importLabel"]').textContent = t.importLabel;
-  document.querySelector('[data-i18n="chooseFile"]').textContent = t.chooseFile;
-  document.querySelector('[data-i18n="delayLabel"]').textContent = t.delayLabel;
+  document.querySelectorAll('[data-i18n="importLabel"]').forEach(el => el.textContent = t.importLabel);
+  document.querySelectorAll('[data-i18n="chooseFile"]').forEach(el => el.textContent = t.chooseFile);
+  document.querySelectorAll('[data-i18n="delayLabel"]').forEach(el => el.textContent = t.delayLabel);
   document.getElementById('startBtn').textContent = t.startBtn;
   document.getElementById('langToggle').textContent = lang === 'fa' ? 'EN' : 'FA';
   document.getElementById('tabBtnBlock').textContent = t.tabBlock;
@@ -198,9 +216,15 @@ function applyLanguage(lang) {
   document.getElementById('idFinderInput').placeholder = t.idFinderPlaceholder;
   document.getElementById('idFinderBtn').textContent = t.idFinderBtn;
   document.querySelector('[data-i18n="blockModeLabel"]').textContent = t.blockModeLabel;
-  document.querySelector('[data-i18n="blockModeUsername"]').textContent = t.blockModeUsername;
-  document.querySelector('[data-i18n="blockModeXid"]').textContent = t.blockModeXid;
+  document.querySelectorAll('[data-i18n="blockModeUsername"]').forEach(el => el.textContent = t.blockModeUsername);
+  document.querySelectorAll('[data-i18n="blockModeXid"]').forEach(el => el.textContent = t.blockModeXid);
   document.querySelectorAll('[data-i18n="clearDataBtn"]').forEach(el => el.textContent = t.clearDataBtn);
+  document.getElementById('tabBtnUnblock').textContent = t.tabUnblock;
+  document.querySelector('[data-i18n="unblockModeLabel"]').textContent = t.unblockModeLabel;
+  document.querySelector('[data-i18n="unblockListLabel"]').textContent = t.unblockListLabel;
+  document.getElementById('unblockStartBtn').textContent = t.unblockStartBtn;
+  const unblockModeSelect = document.getElementById('unblockModeSelect');
+  document.getElementById('unblockListInput').placeholder = unblockModeSelect.value === 'xid' ? t.unblockListPlaceholderXid : t.unblockListPlaceholderUsername;
   document.getElementById('tabBtnBlockedList').textContent = t.tabBlockedList;
   document.querySelector('[data-i18n="blockedListLabel"]').textContent = t.blockedListLabel;
   document.getElementById('fetchBlockedListBtn').textContent = t.fetchBlockedListBtn;
@@ -214,7 +238,7 @@ function applyLanguage(lang) {
     renderBlockedListTable(lastBlockedListData);
   }
 
-  document.getElementById('previewBtn').textContent = t.previewBtn;
+  document.querySelectorAll('[data-i18n="previewBtn"]').forEach(el => el.textContent = t.previewBtn);
   document.getElementById('unblockSelectedBtn').textContent = t.unblockSelectedBtn;
   document.getElementById('blockedListSearchInput').placeholder = t.blockedListSearchPlaceholder;
 
@@ -269,10 +293,13 @@ function loadSettingsIntoForm(settings) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  chrome.storage.local.get(['savedList', 'savedDelay', 'uiLang', 'savedBlockMode', 'extensionSettings'], (result) => {
+  chrome.storage.local.get(['savedList', 'savedDelay', 'uiLang', 'savedBlockMode', 'extensionSettings', 'savedUnblockList', 'savedUnblockDelay', 'savedUnblockMode'], (result) => {
     if (result.savedList) document.getElementById('listInput').value = result.savedList;
     if (result.savedDelay) document.getElementById('delayInput').value = result.savedDelay;
     if (result.savedBlockMode) document.getElementById('blockModeSelect').value = result.savedBlockMode;
+    if (result.savedUnblockList) document.getElementById('unblockListInput').value = result.savedUnblockList;
+    if (result.savedUnblockDelay) document.getElementById('unblockDelayInput').value = result.savedUnblockDelay;
+    if (result.savedUnblockMode) document.getElementById('unblockModeSelect').value = result.savedUnblockMode;
 
     const settings = Object.assign({}, DEFAULT_SETTINGS, result.extensionSettings || {});
     applyTheme(settings.theme);
@@ -315,6 +342,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const t = translations[currentLang];
     document.getElementById('listInput').placeholder = e.target.value === 'xid' ? t.listPlaceholderXid : t.listPlaceholderUsername;
     chrome.storage.local.set({ savedBlockMode: e.target.value });
+  });
+
+  document.getElementById('unblockModeSelect').addEventListener('change', (e) => {
+    const t = translations[currentLang];
+    document.getElementById('unblockListInput').placeholder = e.target.value === 'xid' ? t.unblockListPlaceholderXid : t.unblockListPlaceholderUsername;
+    chrome.storage.local.set({ savedUnblockMode: e.target.value });
   });
 });
 
@@ -536,6 +569,18 @@ document.getElementById('fileInput').addEventListener('change', function(e) {
   reader.readAsText(file);
 });
 
+document.getElementById('unblockFileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const contents = e.target.result;
+    document.getElementById('unblockListInput').value = contents;
+    chrome.storage.local.set({ savedUnblockList: contents });
+  };
+  reader.readAsText(file);
+});
+
 // پاکسازی و اعتبارسنجی خطوط لیست بر اساس حالت انتخاب‌شده (یوزرنیم / X ID)
 function getValidatedEntries(showInvalidAlert) {
   const text = document.getElementById('listInput').value;
@@ -632,6 +677,98 @@ document.getElementById('clearBlockDataBtn').addEventListener('click', () => {
   chrome.storage.local.remove(['savedList']);
 });
 
+// پاکسازی و اعتبارسنجی خطوط لیست آنبلاک بر اساس حالت انتخاب‌شده (یوزرنیم / X ID)
+function getValidatedUnblockEntries(showInvalidAlert) {
+  const text = document.getElementById('unblockListInput').value;
+  const mode = document.getElementById('unblockModeSelect').value;
+  let entries = text.split('\n').map(i => i.trim().replace(/^@/, '')).filter(i => i !== '');
+
+  if (mode === 'xid') {
+    const validCount = entries.length;
+    entries = entries.filter(i => /^\d+$/.test(i));
+    if (showInvalidAlert && entries.length < validCount) {
+      alert(translations[currentLang].alertInvalidXidLines);
+    }
+  }
+  return entries;
+}
+
+// ارسال داده به تب فعال توییتر برای شروع عملیات آنبلاک
+document.getElementById('unblockStartBtn').addEventListener('click', async () => {
+  const text = document.getElementById('unblockListInput').value;
+  const delayVal = document.getElementById('unblockDelayInput').value || "7";
+  const mode = document.getElementById('unblockModeSelect').value;
+
+  if (!text.trim()) {
+    alert(translations[currentLang].alertEmptyList);
+    return;
+  }
+
+  chrome.storage.local.set({ savedUnblockList: text, savedUnblockDelay: delayVal, savedUnblockMode: mode });
+
+  const tab = await getTwitterTab();
+  if (!tab) {
+    alert(translations[currentLang].alertNoTabOnStart);
+    return;
+  }
+
+  const delayMs = parseInt(delayVal) * 1000;
+  const entries = getValidatedUnblockEntries(true);
+
+  if (entries.length === 0) {
+    alert(translations[currentLang].alertEmptyList);
+    return;
+  }
+
+  chrome.tabs.sendMessage(tab.id, { action: "START_UNBLOCK_JOB", list: entries, delayMs });
+  chrome.tabs.update(tab.id, { active: true });
+});
+
+// پیش‌نمایش قبل از شروع آنبلاک: فقط شمارش، بدون آنبلاک واقعی
+document.getElementById('unblockPreviewBtn').addEventListener('click', async () => {
+  const t = translations[currentLang];
+  const previewBox = document.getElementById('unblockPreviewBox');
+  const entries = getValidatedUnblockEntries(true);
+
+  if (entries.length === 0) {
+    alert(t.alertEmptyList);
+    return;
+  }
+
+  const tab = await getTwitterTab();
+  if (!tab) {
+    alert(t.alertNoTabOnStart);
+    return;
+  }
+
+  previewBox.style.display = 'block';
+  previewBox.textContent = t.searching;
+
+  chrome.tabs.sendMessage(tab.id, { action: "PREVIEW_UNBLOCK_LIST", list: entries }, (result) => {
+    if (!result || result.error) {
+      previewBox.textContent = result && result.error === 'NO_CSRF' ? t.errNoCsrf : t.errFetchError;
+      return;
+    }
+    previewBox.innerHTML = `
+      <div>${t.previewTotal(result.total)}</div>
+      <div>${t.previewNotBlocked(result.notBlocked)}</div>
+      <div><b>${t.previewWillUnblock(result.willUnblock)}</b></div>
+    `;
+  });
+});
+
+// پاک کردن داده‌های تب آنبلاک دسته‌جمعی
+document.getElementById('clearUnblockDataBtn').addEventListener('click', () => {
+  const t = translations[currentLang];
+  if (!confirm(t.confirmClearUnblockList)) return;
+
+  document.getElementById('unblockListInput').value = '';
+  document.getElementById('unblockFileInput').value = '';
+  document.getElementById('unblockPreviewBox').style.display = 'none';
+  document.getElementById('unblockPreviewBox').innerHTML = '';
+  chrome.storage.local.remove(['savedUnblockList']);
+});
+
 // پاک کردن داده‌های تب دریافت آیدی
 document.getElementById('clearIdFinderDataBtn').addEventListener('click', () => {
   const t = translations[currentLang];
@@ -646,13 +783,14 @@ document.getElementById('clearIdFinderDataBtn').addEventListener('click', () => 
 
 // ===== سوییچ بین تب‌های داشبورد (بلاک دسته‌جمعی / دریافت آیدی / لیست بلاک‌شده‌ها) =====
 function switchTab(activeBtnId, activePanelId) {
-  const btnIds = ['tabBtnBlock', 'tabBtnIdFinder', 'tabBtnBlockedList', 'tabBtnSettings'];
-  const panelIds = ['tabBlockPanel', 'tabIdFinderPanel', 'tabBlockedListPanel', 'tabSettingsPanel'];
+  const btnIds = ['tabBtnBlock', 'tabBtnUnblock', 'tabBtnIdFinder', 'tabBtnBlockedList', 'tabBtnSettings'];
+  const panelIds = ['tabBlockPanel', 'tabUnblockPanel', 'tabIdFinderPanel', 'tabBlockedListPanel', 'tabSettingsPanel'];
   btnIds.forEach(id => document.getElementById(id).classList.toggle('active', id === activeBtnId));
   panelIds.forEach(id => document.getElementById(id).style.display = (id === activePanelId ? 'block' : 'none'));
 }
 
 document.getElementById('tabBtnBlock').addEventListener('click', () => switchTab('tabBtnBlock', 'tabBlockPanel'));
+document.getElementById('tabBtnUnblock').addEventListener('click', () => switchTab('tabBtnUnblock', 'tabUnblockPanel'));
 document.getElementById('tabBtnIdFinder').addEventListener('click', () => switchTab('tabBtnIdFinder', 'tabIdFinderPanel'));
 document.getElementById('tabBtnBlockedList').addEventListener('click', () => switchTab('tabBtnBlockedList', 'tabBlockedListPanel'));
 document.getElementById('tabBtnSettings').addEventListener('click', () => switchTab('tabBtnSettings', 'tabSettingsPanel'));

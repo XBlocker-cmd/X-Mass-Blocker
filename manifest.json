@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "X Mass Blocker",
-  "version": "3.2",
+  "version": "3.3",
   "description": "بلاک دسته‌جمعی کاربران توییتر از طریق داشبورد اختصاصی و دکمه شناور",
   "permissions": [
     "activeTab",

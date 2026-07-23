@@ -545,6 +545,7 @@
 
     <div class="tab-nav">
       <button id="tabBtnBlock" class="active" type="button" data-i18n="tabBlock">بلاک دسته‌جمعی</button>
+      <button id="tabBtnUnblock" type="button" data-i18n="tabUnblock">آنبلاک دسته‌جمعی</button>
       <button id="tabBtnIdFinder" type="button" data-i18n="tabIdFinder">دریافت آیدی از یوزرنیم</button>
       <button id="tabBtnBlockedList" type="button" data-i18n="tabBlockedList">لیست بلاک‌شده‌ها</button>
       <button id="tabBtnSettings" type="button" data-i18n="tabSettings">تنظیمات</button>
@@ -589,6 +590,41 @@
     <button id="previewBtn" class="btn-secondary" type="button" data-i18n="previewBtn">پیش‌نمایش قبل از شروع</button>
     <button id="startBtn" class="btn" type="button" data-i18n="startBtn">شروع عملیات بلاک دسته‌جمعی</button>
     <button id="clearBlockDataBtn" class="btn-secondary" type="button" data-i18n="clearDataBtn">پاک کردن داده‌ها</button>
+    </div>
+
+    <div id="tabUnblockPanel" style="display:none">
+      <div class="field-group">
+        <label data-i18n="unblockModeLabel">نوع داده ورودی</label>
+        <select id="unblockModeSelect">
+          <option value="username" data-i18n="blockModeUsername">بر اساس یوزرنیم</option>
+          <option value="xid" data-i18n="blockModeXid">بر اساس X ID (آیدی عددی)</option>
+        </select>
+      </div>
+
+      <div class="field-group">
+        <label data-i18n="unblockListLabel">لیست یوزرنیم‌ها/آیدی‌ها برای آنبلاک</label>
+        <textarea id="unblockListInput" placeholder="هر آیدی یا یوزرنیم در یک خط جدید..."></textarea>
+      </div>
+
+      <div class="row">
+        <div>
+          <label data-i18n="importLabel">ایمپورت فایل آیدی‌ها (TXT)</label>
+          <div class="file-input-wrapper">
+            <span class="btn-file" data-i18n="chooseFile">انتخاب فایل متنی لیست...</span>
+            <input type="file" id="unblockFileInput" accept=".txt" />
+          </div>
+        </div>
+        <div>
+          <label data-i18n="delayLabel">میزان تاخیر بین هر آنبلاک (ثانیه)</label>
+          <input type="number" id="unblockDelayInput" value="7" min="2" />
+        </div>
+      </div>
+
+      <div id="unblockPreviewBox" class="preview-box"></div>
+
+      <button id="unblockPreviewBtn" class="btn-secondary" type="button" data-i18n="previewBtn">پیش‌نمایش قبل از شروع</button>
+      <button id="unblockStartBtn" class="btn" type="button" data-i18n="unblockStartBtn">شروع عملیات آنبلاک دسته‌جمعی</button>
+      <button id="clearUnblockDataBtn" class="btn-secondary" type="button" data-i18n="clearDataBtn">پاک کردن داده‌ها</button>
     </div>
 
     <div id="tabIdFinderPanel" style="display:none">

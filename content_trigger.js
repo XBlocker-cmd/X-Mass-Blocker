@@ -64,6 +64,13 @@
             window.XBlockerCore.previewList(request.list).then(sendResponse);
             return true; // پاسخ به‌صورت async ارسال می‌شود
         }
+        if (request.action === "START_UNBLOCK_JOB" && window.XBlockerCore) {
+            window.XBlockerCore.startUnblockJob({ list: request.list, delayMs: request.delayMs });
+        }
+        if (request.action === "PREVIEW_UNBLOCK_LIST" && window.XBlockerCore) {
+            window.XBlockerCore.previewUnblockList(request.list).then(sendResponse);
+            return true; // پاسخ به‌صورت async ارسال می‌شود
+        }
     });
 
     // در هر بار لود شدن صفحه (مثلاً بعد از رفرش)، بررسی کن که آیا عملیات نیمه‌تمامی وجود دارد یا نه

@@ -49,11 +49,21 @@
             followRelBoth: "دنبال می‌کنید و دنبالتان می‌کند",
             followRelFollowing: "شما دنبالش می‌کنید",
             followRelFollower: "دنبالتان می‌کند",
-            resumeModalTitle: "یک عملیات بلاک نیمه‌تمام پیدا شد",
+            resumeModalTitle: "یک عملیات نیمه‌تمام پیدا شد",
             resumeModalDesc: (done, total) => `${done} از ${total} مورد قبلاً پردازش شده. می‌خواهید ادامه دهید؟`,
             resumeModalYes: "بله، ادامه بده",
             resumeModalNo: "نه، رها کن",
-            cancelBtn: "لغو"
+            cancelBtn: "لغو",
+            unblockPanelTitle: "عملیات آنبلاک دسته‌جمعی",
+            unblockCheckingStatus: "در حال بررسی وضعیت اکانت‌ها...",
+            unblockingStatus: (u, i, n) => `در حال آنبلاک کردن: ${u} (${i}/${n})`,
+            unblockSuccessToast: (u) => `کاربر <b>${u}</b> با موفقیت آنبلاک شد.`,
+            unblockDoneTitle: "✓ عملیات آنبلاک پایان یافت",
+            unblockReportHeading: "گزارش نهایی آنبلاک",
+            unblockReportNotBlocked: (n) => `از قبل بلاک نبودند (رد شدند): ${n}`,
+            unblockReportUnblocked: (n) => `با موفقیت آنبلاک شدند: ${n}`,
+            unblockNotifTitle: "عملیات آنبلاک دسته‌جمعی تمام شد",
+            unblockNotifBody: (unblocked, total) => `${unblocked} از ${total} اکانت با موفقیت آنبلاک شد.`
         },
         en: {
             panelTitle: "Mass Block Operation",
@@ -79,11 +89,21 @@
             followRelBoth: "You follow each other",
             followRelFollowing: "You follow them",
             followRelFollower: "They follow you",
-            resumeModalTitle: "An unfinished block operation was found",
+            resumeModalTitle: "An unfinished operation was found",
             resumeModalDesc: (done, total) => `${done} of ${total} items already processed. Do you want to continue?`,
             resumeModalYes: "Yes, continue",
             resumeModalNo: "No, discard",
-            cancelBtn: "Cancel"
+            cancelBtn: "Cancel",
+            unblockPanelTitle: "Mass Unblock Operation",
+            unblockCheckingStatus: "Checking account status...",
+            unblockingStatus: (u, i, n) => `Unblocking: ${u} (${i}/${n})`,
+            unblockSuccessToast: (u) => `User <b>${u}</b> was successfully unblocked.`,
+            unblockDoneTitle: "✓ Unblock operation finished",
+            unblockReportHeading: "Final unblock report",
+            unblockReportNotBlocked: (n) => `Weren't blocked (skipped): ${n}`,
+            unblockReportUnblocked: (n) => `Successfully unblocked: ${n}`,
+            unblockNotifTitle: "Mass unblock operation finished",
+            unblockNotifBody: (unblocked, total) => `${unblocked} of ${total} accounts were successfully unblocked.`
         }
     };
 
@@ -272,11 +292,11 @@
         return panel;
     }
 
-    function updatePanelUI(t, dir, status, progressPercent) {
+    function updatePanelUI(t, dir, status, progressPercent, panelTitle) {
         const panel = ensurePanel(dir);
         if (!panel.querySelector('.status-text')) {
             panel.innerHTML = `
-                <h4>${t.panelTitle}</h4>
+                <h4>${panelTitle || t.panelTitle}</h4>
                 <div class="status-text"></div>
                 <div class="progress-bar"><div class="progress-fill"></div></div>
             `;
@@ -285,7 +305,7 @@
         panel.querySelector('.progress-fill').style.width = `${progressPercent}%`;
     }
 
-    function showSuccessToast(t, dir, username) {
+    function showSuccessToast(t, dir, username, textFn) {
         let toastContainer = document.querySelector('.block-toast-container');
         if (!toastContainer) {
             toastContainer = document.createElement('div');
@@ -296,7 +316,7 @@
         toast.className = 'block-toast';
         toast.style.direction = dir;
         toast.style.textAlign = dir === 'rtl' ? 'right' : 'left';
-        toast.innerHTML = t.successToast(username);
+        toast.innerHTML = (textFn || t.successToast)(username);
         toastContainer.appendChild(toast);
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
@@ -305,23 +325,38 @@
         }, 3000);
     }
 
-    function renderFinalReport(t, dir, report) {
+    function renderFinalReport(t, dir, report, mode) {
+        const isUnblock = mode === 'unblock';
+        const doneTitle = isUnblock ? t.unblockDoneTitle : t.doneTitle;
+        const reportHeading = isUnblock ? t.unblockReportHeading : t.reportHeading;
+
         const panel = ensurePanel(dir);
-        panel.innerHTML = `<h4 style="color:#10b981;">${t.doneTitle}</h4>
-            <div class="status-text">${t.doneTitle}</div>
+        panel.innerHTML = `<h4 style="color:#10b981;">${doneTitle}</h4>
+            <div class="status-text">${doneTitle}</div>
             <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>`;
 
         const reportBox = document.createElement('div');
         reportBox.className = 'report-box';
-        reportBox.innerHTML = `
-            <div><b>${t.reportHeading}</b></div>
-            <div>${t.reportTotal(report.total)}</div>
-            ${report.whitelisted ? `<div>${t.reportWhitelisted(report.whitelisted)}</div>` : ''}
-            ${report.followExcluded ? `<div>${t.reportFollowExcluded(report.followExcluded)}</div>` : ''}
-            <div>${t.reportSkipped(report.skipped)}</div>
-            <div>${t.reportBlocked(report.blocked)}</div>
-            <div>${t.reportFailed(report.failed)}</div>
-        `;
+
+        if (isUnblock) {
+            reportBox.innerHTML = `
+                <div><b>${reportHeading}</b></div>
+                <div>${t.reportTotal(report.total)}</div>
+                <div>${t.unblockReportNotBlocked(report.skipped)}</div>
+                <div>${t.unblockReportUnblocked(report.blocked)}</div>
+                <div>${t.reportFailed(report.failed)}</div>
+            `;
+        } else {
+            reportBox.innerHTML = `
+                <div><b>${reportHeading}</b></div>
+                <div>${t.reportTotal(report.total)}</div>
+                ${report.whitelisted ? `<div>${t.reportWhitelisted(report.whitelisted)}</div>` : ''}
+                ${report.followExcluded ? `<div>${t.reportFollowExcluded(report.followExcluded)}</div>` : ''}
+                <div>${t.reportSkipped(report.skipped)}</div>
+                <div>${t.reportBlocked(report.blocked)}</div>
+                <div>${t.reportFailed(report.failed)}</div>
+            `;
+        }
         panel.appendChild(reportBox);
 
         // اعلان دسکتاپ از طریق background (چون content script نمی‌تواند مستقیم آن را نمایش دهد)
@@ -329,8 +364,8 @@
             if (settings.notifyOnComplete) {
                 chrome.runtime.sendMessage({
                     action: "SHOW_NOTIFICATION",
-                    title: t.notifTitle,
-                    message: t.notifBody(report.blocked, report.total)
+                    title: isUnblock ? t.unblockNotifTitle : t.notifTitle,
+                    message: isUnblock ? t.unblockNotifBody(report.blocked, report.total) : t.notifBody(report.blocked, report.total)
                 });
             }
         });
@@ -549,20 +584,80 @@
                     showSuccessToast(t, dir, username);
                 } else if (res.status === 429) {
                     updatePanelUI(t, dir, t.rateLimitStatus, progressPercent);
-                    persistJob({ workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
+                    persistJob({ type: 'block', workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
                     return;
                 } else {
                     report.failed++;
                 }
 
                 currentIndex++;
-                persistJob({ workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
+                persistJob({ type: 'block', workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
                 setTimeout(step, delayMs);
             })
             .catch(() => {
                 report.failed++;
                 currentIndex++;
-                persistJob({ workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
+                persistJob({ type: 'block', workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
+                setTimeout(step, delayMs);
+            });
+        }
+
+        step();
+    }
+
+    // ---------- حلقه‌ی اصلی آنبلاک ----------
+    function executeUnblockLoop(t, dir, workingList, delayMs, report, startIndex) {
+        let currentIndex = startIndex || 0;
+
+        function step() {
+            if (currentIndex >= workingList.length) {
+                clearJob();
+                renderFinalReport(t, dir, report, 'unblock');
+                return;
+            }
+
+            const username = workingList[currentIndex];
+            const progressPercent = (currentIndex / workingList.length) * 100;
+            updatePanelUI(t, dir, t.unblockingStatus(username, currentIndex + 1, workingList.length), progressPercent, t.unblockPanelTitle);
+
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) {
+                updatePanelUI(t, dir, t.noCsrfStatus, progressPercent, t.unblockPanelTitle);
+                return;
+            }
+
+            const isNumeric = /^\d+$/.test(username);
+            const postData = isNumeric ? `user_id=${username}` : `screen_name=${encodeURIComponent(username)}`;
+
+            fetch("https://x.com/i/api/1.1/blocks/destroy.json", {
+                method: "POST",
+                headers: {
+                    "Authorization": BEARER,
+                    "X-Csrf-Token": csrfToken,
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: postData
+            })
+            .then(res => {
+                if (res.status === 200) {
+                    report.blocked++; // در گزارش آنبلاک، این فیلد یعنی «با موفقیت آنبلاک شدند»
+                    showSuccessToast(t, dir, username, t.unblockSuccessToast);
+                } else if (res.status === 429) {
+                    updatePanelUI(t, dir, t.rateLimitStatus, progressPercent, t.unblockPanelTitle);
+                    persistJob({ type: 'unblock', workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
+                    return;
+                } else {
+                    report.failed++;
+                }
+
+                currentIndex++;
+                persistJob({ type: 'unblock', workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
+                setTimeout(step, delayMs);
+            })
+            .catch(() => {
+                report.failed++;
+                currentIndex++;
+                persistJob({ type: 'unblock', workingList, delayMs, report, index: currentIndex, status: 'running', lang: t === T.fa ? 'fa' : 'en' });
                 setTimeout(step, delayMs);
             });
         }
@@ -616,7 +711,7 @@
             return;
         }
 
-        persistJob({ workingList: finalList, delayMs, report, index: 0, status: 'running', lang });
+        persistJob({ type: 'block', workingList: finalList, delayMs, report, index: 0, status: 'running', lang });
         executeBlockLoop(t, dir, finalList, delayMs, report, 0);
     }
 
@@ -637,16 +732,19 @@
         }
 
         ensureStyles(settings.theme);
+        const resumeExecutor = job.type === 'unblock'
+            ? () => executeUnblockLoop(t, dir, job.workingList, job.delayMs, job.report, job.index)
+            : () => executeBlockLoop(t, dir, job.workingList, job.delayMs, job.report, job.index);
 
         if (settings.resumeBehavior === 'auto') {
-            executeBlockLoop(t, dir, job.workingList, job.delayMs, job.report, job.index);
+            resumeExecutor();
             return;
         }
 
         // پیش‌فرض: 'ask'
         const wantsToResume = await confirmResumeModal(t, job.index, job.workingList.length);
         if (wantsToResume) {
-            executeBlockLoop(t, dir, job.workingList, job.delayMs, job.report, job.index);
+            resumeExecutor();
         } else {
             clearJob();
         }
@@ -673,9 +771,109 @@
         };
     }
 
+    // ---------- تحلیل لیست آنبلاک: فقط کسانی که واقعاً الان بلاک هستند ----------
+    async function analyzeUnblockList(list, csrfToken) {
+        const headers = {
+            "Authorization": BEARER,
+            "X-Csrf-Token": csrfToken,
+            "X-Twitter-Active-User": "yes",
+            "X-Twitter-Auth-Type": "OAuth2Session",
+            "X-Twitter-Client-Language": "en"
+        };
+
+        const blockedSet = new Set();
+        const chunkSize = 100;
+
+        for (let i = 0; i < list.length; i += chunkSize) {
+            const chunk = list.slice(i, i + chunkSize);
+            const numericIds = chunk.filter(x => /^\d+$/.test(x));
+            const usernames = chunk.filter(x => !/^\d+$/.test(x));
+
+            const params = new URLSearchParams();
+            if (usernames.length) params.set('screen_name', usernames.join(','));
+            if (numericIds.length) params.set('user_id', numericIds.join(','));
+
+            try {
+                const res = await fetch(`https://x.com/i/api/1.1/friendships/lookup.json?${params.toString()}`, { method: "GET", headers });
+                if (res.ok) {
+                    const data = await res.json();
+                    (Array.isArray(data) ? data : []).forEach(u => {
+                        const connections = Array.isArray(u.connections) ? u.connections : [];
+                        if (connections.includes('blocking')) {
+                            if (u.screen_name) blockedSet.add(u.screen_name.toLowerCase());
+                            if (u.id_str) blockedSet.add(u.id_str);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn('[Mass Blocker] unblock-analyze chunk failed:', err);
+            }
+
+            if (i + chunkSize < list.length) await new Promise(r => setTimeout(r, 300));
+        }
+
+        const toUnblock = [];
+        let notBlockedCount = 0;
+        list.forEach(entry => {
+            const key = /^\d+$/.test(entry) ? entry : entry.toLowerCase();
+            if (blockedSet.has(key)) {
+                toUnblock.push(entry);
+            } else {
+                notBlockedCount++;
+            }
+        });
+
+        return { toUnblock, notBlockedCount };
+    }
+
+    // ---------- شروع یک عملیات آنبلاک دسته‌جمعی ----------
+    async function startUnblockJob({ list, delayMs }) {
+        const settings = await getSettings();
+        const lang = await getUiLang();
+        const t = T[lang];
+        const dir = lang === 'fa' ? 'rtl' : 'ltr';
+
+        ensureStyles(settings.theme);
+        updatePanelUI(t, dir, t.unblockCheckingStatus, 0, t.unblockPanelTitle);
+
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) {
+            updatePanelUI(t, dir, t.noCsrfStatus, 0, t.unblockPanelTitle);
+            return;
+        }
+
+        const report = { total: list.length, skipped: 0, blocked: 0, failed: 0 };
+
+        const { toUnblock, notBlockedCount } = await analyzeUnblockList(list, csrfToken);
+        report.skipped = notBlockedCount;
+
+        if (toUnblock.length === 0) {
+            renderFinalReport(t, dir, report, 'unblock');
+            return;
+        }
+
+        persistJob({ type: 'unblock', workingList: toUnblock, delayMs, report, index: 0, status: 'running', lang });
+        executeUnblockLoop(t, dir, toUnblock, delayMs, report, 0);
+    }
+
+    // ---------- پیش‌نمایش آنبلاک (dry-run) ----------
+    async function previewUnblockList(list) {
+        const csrfToken = getCsrfToken();
+        if (!csrfToken) return { error: "NO_CSRF" };
+
+        const { toUnblock, notBlockedCount } = await analyzeUnblockList(list, csrfToken);
+        return {
+            total: list.length,
+            notBlocked: notBlockedCount,
+            willUnblock: toUnblock.length
+        };
+    }
+
     window.XBlockerCore = {
         startJob,
         checkForResumableJob,
-        previewList
+        previewList,
+        startUnblockJob,
+        previewUnblockList
     };
 })();
