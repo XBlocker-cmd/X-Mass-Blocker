@@ -67,7 +67,7 @@ Use the popup for quick, simple jobs. Use the full dashboard tab when you want t
 
 ### License
 
-MIT — do whatever you want with it, no warranty.
+MIT — do whatever you want with it.
 
 ---
 
@@ -130,4 +130,4 @@ X Mass Blocker یه افزونه‌ی مرورگره که به‌جای اینک
 
 ### مجوز (License)
 
-MIT — هر کاری باهاش می‌خوای بکن، بدون هیچ ضمانتی.
+MIT — هر کاری باهاش می‌خوای بکن.
