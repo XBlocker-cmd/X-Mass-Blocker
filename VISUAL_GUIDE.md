@@ -80,9 +80,8 @@ Regular Chrome for Android does **not** support extensions at all — this is a 
 5. Tap **Load unpacked**, then use the folder picker to navigate to and select the folder you extracted in step 2.
 6. The extension should now appear in the browser's extension list, with the ability to pin its icon to the toolbar, exactly like on desktop.
 
-> ⚠️ Honesty note: I don't have an Android device or emulator to screenshot this flow myself, so the steps above are based on how Mises/Kiwi-style browsers document their extension support, not a screenshot I personally captured. The concept (Developer mode → Load unpacked → pick the folder) mirrors desktop Chrome closely, but exact menu names may differ a little depending on the app version you have installed.
-
----
+>
+>---
 
 <a name="فارسی"></a>
 ## فارسی
@@ -153,5 +152,3 @@ Regular Chrome for Android does **not** support extensions at all — this is a 
 ۴. تو همون صفحه دنبال یه سوییچ **Developer mode** بگرد و روشنش کن - این یه گزینه‌ی **Load unpacked** باز می‌کنه، دقیقاً مثل کروم روی کامپیوتر.
 ۵. رو **Load unpacked** بزن، بعد با فایل‌منیجر گوشی برو سراغ همون پوشه‌ای که تو مرحله‌ی ۲ از حالت فشرده خارج کردی و انتخابش کن.
 ۶. الان باید افزونه تو لیست افزونه‌های مرورگر ظاهر بشه، و بشه آیکونش رو پین کرد، دقیقاً مثل حالت کامپیوتر.
-
-> ⚠️ نکته‌ی صادقانه: من گوشی یا شبیه‌ساز اندروید ندارم که خودم این مراحل رو عکس بگیرم، پس مراحل بالا بر اساس مستنداتیه که Mises/Kiwi از پشتیبانی افزونه‌هاشون منتشر کردن، نه یه اسکرین‌شات واقعی که خودم گرفته باشم. مفهوم کلی (Developer mode ← Load unpacked ← انتخاب پوشه) خیلی شبیه کروم روی کامپیوتره، ولی اسم دقیق منوها ممکنه بسته به نسخه‌ی اپی که نصب کردی، کمی فرق داشته باشه.
