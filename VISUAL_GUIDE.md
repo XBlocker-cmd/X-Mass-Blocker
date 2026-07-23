@@ -1,4 +1,5 @@
 # X Mass Blocker — Visual Guide
+![VirusTotal Scan](https://github.com/XBlocker-cmd/X-Mass-Blocker/actions/workflows/scan.yml/badge.svg)
 
 A screenshot-by-screenshot walkthrough: installing the extension, opening it two different ways, touring every tab, and using it on Android.
 
