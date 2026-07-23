@@ -1,4 +1,5 @@
 # X Mass Blocker
+![VirusTotal Scan](https://github.com/XBlocker-cmd/X-Mass-Blocker/actions/workflows/scan.yml/badge.svg)
 
 A Chrome extension for bulk-blocking (and bulk-unblocking) accounts on X / Twitter, with a searchable dashboard, safety checks, and bilingual (English/Persian) support.
 
